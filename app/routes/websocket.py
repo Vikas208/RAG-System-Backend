@@ -20,13 +20,19 @@ async def chat(websocket: WebSocket, session_id: str):
     try:
         while True:
             # Receive a query from the client
-            user_query = await websocket.receive_text()
+            event = await websocket.receive_json()
+            
+            if event.type == 'question':
+                user_query = event.data
+                # Process the query with streaming
+                response = rag.answer_question(user_query)
 
-            # Process the query with streaming
-            response = rag.answer_question(user_query)
-
-            # Send the response back to the client
-            await websocket.send_json({"event": "response", "data": response['result'], "code":200})
+                # Send the response back to the client
+                await websocket.send_json({"event": "response", "data": response['result'], "code":200})
+            
+            elif event.type == 'close':
+                await websocket.close()
+                break
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for session {session_id}")
     except Exception as e:
