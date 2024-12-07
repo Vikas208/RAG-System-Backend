@@ -90,11 +90,14 @@ class RAG:
         }
 
         # create the chain
-        qa = RetrievalQA.from_chain_type(
+        self.qa = RetrievalQA.from_chain_type(
             llm=llm,
             retriever=retriever,
             return_source_documents=True,  
         )
+    
+    def answer_question(self, question):
+        return self.qa({"query": question})
 
 
         
