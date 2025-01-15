@@ -5,7 +5,7 @@ from app.utils.response_handler import success_response, error_response  # Impor
 router = APIRouter(prefix="/auth")
 
 
-@router.get("/create_session")
+@router.post("/create-session")
 async def create_session():
     try:
         session_manager = UserSessionManager()
@@ -22,7 +22,7 @@ async def create_session():
         )
 
 
-@router.get("/invalidate_session")
+@router.post("/invalidate-session")
 async def invalidate_session(request: Request):
     try:
         session_token = request.headers.get("Authorization")
@@ -42,7 +42,7 @@ async def invalidate_session(request: Request):
         )
 
 
-@router.get("/extend_session")
+@router.post("/extend-session")
 async def extend_session(request: Request):
     try:
         session_token = request.headers.get("Authorization")

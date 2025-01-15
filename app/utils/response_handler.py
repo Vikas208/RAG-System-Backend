@@ -12,7 +12,7 @@ def success_response(data=None, message="Operation successful", status_code=200)
     return JSONResponse(
         status_code=status_code,
         content={
-            "status": "success",
+            "status": status_code,
             "message": message,
             "data": data,
         },
@@ -30,7 +30,7 @@ def error_response(message="An error occurred", status_code=400, details=None):
     return JSONResponse(
         status_code=status_code,
         content={
-            "status": "error",
+            "status": status_code,
             "message": message,
             "data": details,
         },

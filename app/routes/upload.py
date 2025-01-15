@@ -9,26 +9,27 @@ from app.utils.response_handler import success_response, error_response
 router = APIRouter(prefix="/upload")
 api_key = APIKeyHeader(name="Authorization", auto_error=True)
 
-@router.post("/upload", dependencies=[Depends(api_key), Depends(validate_session)]) 
+@router.post("/", dependencies=[Depends(api_key), Depends(validate_session)])
 async def upload(file: UploadFile = File(...), request: Request = None):
     try:
         # Get the uploaded file from the request
         if not file:
             raise HTTPException(status_code=400, detail="No file uploaded")
 
-        # Session data 
+        # Session data
         session_data = request.state.session_data
 
         # store file
         file_upload = FileUpload()
         file_name = file_upload.upload_file(file, session_data)
 
+
         # Process the file
         rag = RAG()
         rag.process_file(file_name, session_data)
-        
+
         RagSessionManager.add_session(session_data["session_id"], rag)
-    
+
         return success_response(message="File uploaded successfully and processed",status_code=200)
     except ValueError as e:
         return error_response(message="Invalid file format", status_code=400,details=str(e))

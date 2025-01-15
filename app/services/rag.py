@@ -1,14 +1,27 @@
 from dotenv import load_dotenv
 import os 
 import time
-from langchain.document_loaders import PyPDFLoader, TextLoader, Docx2txtLoader, UnstructuredCSVLoader, UnstructuredExcelLoader, UnstructuredPowerPointLoader
+from langchain_community.document_loaders import PyPDFLoader, TextLoader, Docx2txtLoader, UnstructuredCSVLoader, UnstructuredExcelLoader, UnstructuredPowerPointLoader
 from langchain.chains import RetrievalQA
 from langchain.indexes import VectorstoreIndexCreator
 from langchain_community.llms import DeepInfra
 from langchain_community.embeddings import DeepInfraEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 from langchain_chroma import Chroma
+from langchain.prompts import PromptTemplate, BaseChatPromptTemplate
+
 load_dotenv()
+
+template = """Try to answer the following question by carefully checking the context. Always say "thanks for asking! " at the end of the answer. If you dont know the answer, say "I dont know".
+
+context:
+{context}
+
+Question:
+{question}
+"""
+
+
 class RAG: 
     def __init__(self):
         self.DIRECTORY_PATH = os.getenv("UPLOAD_PATH")
@@ -24,6 +37,8 @@ class RAG:
 
 
         os.environ["DEEPINFRA_API_TOKEN"] = self.DEEP_INFRA_KEY
+
+     
         
     
     def load_file(self, file_name):
@@ -94,10 +109,18 @@ class RAG:
             llm=llm,
             retriever=retriever,
             return_source_documents=True,  
+            verbose=True,
+            chain_type_kwargs={
+                "verbose": True,
+                "prompt": PromptTemplate(
+                    template=template,
+                    input_variables=["context", "question"],
+                )
+            }
         )
     
     def answer_question(self, question):
-        return self.qa({"query": question})
+        return self.qa({"query": question,type: "question"})
 
 
         
